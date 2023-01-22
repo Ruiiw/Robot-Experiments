@@ -16,4 +16,3 @@ class MOTOR:
         controlMode = p.POSITION_CONTROL,
         targetPosition = desiredAngles,
         maxForce = 60)
-        time.sleep(1/240)
