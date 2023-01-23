@@ -1,4 +1,5 @@
 import pyrosim.pyrosim as pyrosim
+import random
 
 def Generate_Box():
     pyrosim.Start_URDF("box.urdf")
@@ -29,6 +30,13 @@ def Generate_Brain():
     pyrosim.Send_Synapse(sourceNeuronName = 0 , targetNeuronName = 4 , weight = -1.0)
     pyrosim.Send_Synapse(sourceNeuronName = 2 , targetNeuronName = 4 , weight = -1.0)
     pyrosim.End()
+
+def Generate_Fully_Connected_NN():
+    sensorNeuNames = [0, 1, 2]
+    motorNeuNames = [3, 4]
+    for sNeuron in sensorNeuNames:
+        for mNeuron in motorNeuNames:
+            pyrosim.Send_Synapse(sourceNeuronName = sNeuron , targetNeuronName = mNeuron , weight = random.randrange(-1, 1))
 
 Generate_Box()
 Generate_Body()
