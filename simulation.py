@@ -35,3 +35,4 @@ class SIMULATION:
 
     def Get_Fitness(self):
         self.robot.Get_Fitness()
+        

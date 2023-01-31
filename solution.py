@@ -2,6 +2,7 @@ import numpy
 import pyrosim.pyrosim as pyrosim
 import random
 import os
+import time
 
 class SOLUTION:
 
@@ -9,14 +10,33 @@ class SOLUTION:
         self.weights = numpy.random.rand(3, 2) * 2 -1
         self.myID = nextAvailableID
 
-    def Evaluate(self, directOrGUI):
+    # def Evaluate(self, directOrGUI):
+    #     self.Create_World()
+    #     self.Create_Body()
+    #     self.Create_Brain()
+    #     os.system("python3 simulate.py" + directOrGUI + " " + str(self.myID) + " &")
+    #     while not os.path.exists("fitness" + str(self.myID) + ".txt"):
+    #         time.sleep(0.01)
+    #     f = open("fitness" + str(self.myID) + ".txt", "r")
+    #     self.fitness = float(f.read())
+    #     print(self.fitness)
+    #     f.close()
+
+    def Start_Simulation(self, directOrGUI):
         self.Create_World()
         self.Create_Body()
         self.Create_Brain()
         os.system("python3 simulate.py" + directOrGUI + " " + str(self.myID) + " &")
-        f = open("fitness.txt", "r")
-        self.fitness = float(f.read())
+
+    def Wait_For_Simulation_To_End(self):
+        while not os.path.exists("fitness" + str(self.myID) + ".txt"):
+            time.sleep(0.01)
+        f = open("fitness" + str(self.myID) + ".txt", "r")
+        fitVal = f.read()
+        #print("fitVal", fitVal)
+        self.fitness = float(fitVal)
         f.close()
+        os.system("rm fitness" + str(self.myID) + ".txt")
 
     def Create_World(self):
         pyrosim.Start_URDF("box.urdf")
