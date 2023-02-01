@@ -26,7 +26,7 @@ class PARALLEL_HILL_CLIMBER:
         self.Mutate()
         self.Evaluate(self.children)
         self.Print()
-        self.Select()
+        # self.Select()
 
     def Spawn(self):
         self.children = {}
@@ -63,7 +63,7 @@ class PARALLEL_HILL_CLIMBER:
 
     def Evaluate(self, solutions):
         for parent in solutions:
-            self.parents[parent].Start_Simulation(" DIRECT")
+            self.parents[parent].Start_Simulation(" GUI")
 
         for parent in solutions:
             self.parents[parent].Wait_For_Simulation_To_End()
