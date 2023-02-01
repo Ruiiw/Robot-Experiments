@@ -12,8 +12,10 @@ numberOfGenerations = 20
 
 numTimeSteps = 1000
 
-populationSize = 10
+populationSize = 15
 
-numSensorneurons = 9
+numSensorneurons = 4
 
 numMotorneurons = 8
+
+motorJointRange = 0.3
