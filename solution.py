@@ -8,10 +8,15 @@ import constants as c
 class SOLUTION:
 
     def __init__(self, nextAvailableID):
-        self.weights = numpy.random.rand(c.numSensorneurons, c.numMotorneurons) * 2 -1
         self.myID = nextAvailableID
         self.numLinks = random.randint(3, 8)
         self.numJoints = self.numLinks -1
+
+        # random number of sensors
+        self.hasSensor = [False] * self.numLinks
+        for i in range(self.numLinks):
+            if random.random() > 0.5:
+                self.hasSensor[i] = True
 
     def Start_Simulation(self, directOrGUI):
         self.Create_World()
@@ -35,13 +40,8 @@ class SOLUTION:
 
     def Create_Body(self):
         pyrosim.Start_URDF("body.urdf")
-        # random number of sensors
-        hasSensor = [False] * self.numLinks
-        for i in range(self.numLinks):
-            if random.random() > 0.5:
-                hasSensor[i] = True
         
-        # crete first link
+        # create first link
         linkS = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
 
         pyrosim.Send_Cube(name = "Link0", pos = [0, 0, linkS[2]/2], size = linkS)
@@ -72,15 +72,28 @@ class SOLUTION:
 
     def Create_Brain(self):
         pyrosim.Start_NeuralNetwork("brain" + str(self.myID) + ".nndf")
-       
-        for currentRow in range(c.numSensorneurons):
-            for currentColumn in range(c.numMotorneurons):
-                pyrosim.Send_Synapse(sourceNeuronName = currentRow , targetNeuronName = currentColumn + c.numSensorneurons , weight = self.weights[currentRow][currentColumn])
+        self.numMotorNeurons = self.numJoints
+        self.numSensorNeurons = 0
+        
+        for i in range(self.numLinks):
+            if self.hasSensor:
+                self.numSensorNeurons += 1
+                pyrosim.Send_Sensor_Neuron(name = i, linkName = "Link" + str(i))
+        
+        motorName = self.numSensorNeurons
+        for i in range(self.numJoints):
+            pyrosim.Send_Motor_Neuron(name = motorName, jointName = "Link" + str(i) + "_Link" + str(i+1))
+            motorName += 1
+        
+        self.weights = numpy.random.rand(self.numSensorNeurons, self.numMotorNeurons) * 2 -1
+        for currentRow in range(self.numSensorNeurons):
+            for currentColumn in range(self.numMotorNeurons):
+                pyrosim.Send_Synapse(sourceNeuronName = currentRow , targetNeuronName = currentColumn + self.numSensorNeurons , weight = self.weights[currentRow][currentColumn])
         pyrosim.End()
 
     def Mutate(self):
-        randomRow = random.randint(0, c.numSensorneurons-1)
-        randomCol = random.randint(0, c.numMotorneurons-1)
+        randomRow = random.randint(0, self.numSensorNeurons-1)
+        randomCol = random.randint(0, self.numMotorNeurons-1)
         self.weights[randomRow,randomCol] = random.random()*2 -1
 
     def Set_ID(self, id):
