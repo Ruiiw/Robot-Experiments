@@ -52,7 +52,6 @@ class PARALLEL_HILL_CLIMBER:
        
 
     def Show_Best(self):
-        #self.parent.Evaluate(" GUI")
         minFit = self.parents[0].fitness
         for i in self.parents:
             minFit = min(self.parents[i].fitness, minFit)
