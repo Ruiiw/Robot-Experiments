@@ -35,16 +35,39 @@ class SOLUTION:
 
     def Create_Body(self):
         pyrosim.Start_URDF("body.urdf")
+        # random number of sensors
         hasSensor = [False] * self.numLinks
         for i in range(self.numLinks):
             if random.random() > 0.5:
                 hasSensor[i] = True
         
-        for i in range(self.numLinks):
-            linkSize = [random.random(), random.random(), random.random()]
-            pyrosim.Send_Cube(
-                size = linkSize
-            )
+        # crete first link
+        linkS = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
+
+        pyrosim.Send_Cube(name = "Link0", pos = [0, 0, linkS[2]/2], size = linkS)
+        pyrosim.Send_Joint(
+            name = "Link0_Link1", 
+            parent = "Link0", 
+            child = "Link1", 
+            type = "revolute", 
+            position = [linkS[0]/2, 0, linkS[2]/2], 
+            jointAxis = "0 1 0")
+
+
+        for i in range(1, self.numLinks):
+            # create other links
+            linkSize = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
+            pyrosim.Send_Cube(name = "Link" + str(i), pos = [linkSize[0]/2, 0, 0], size = linkSize)
+
+            # create joints
+            if i != self.numLinks - 1:
+                pyrosim.Send_Joint(
+                    name = "Link" + str(i) + "_Link" + str(i+1),
+                    parent = "Link" + str(i),
+                    child = "Link" + str(i+1),
+                    type = "revolute",
+                    position = [linkSize[0], 0, 0],
+                    jointAxis = "0 1 0")
         pyrosim.End()
 
     def Create_Brain(self):

@@ -15,6 +15,7 @@ class SIMULATION:
             self.physicsClient = p.connect(p.DIRECT)
         else:
             self.physicsClient = p.connect(p.GUI)
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.setGravity(0,0,-9.8)
         self.world = WORLD()
@@ -31,7 +32,7 @@ class SIMULATION:
             self.robot.Think()
             self.robot.Act(i)
             if self.directOrGUI == "GUI":
-                time.sleep(1/1000)
+                time.sleep(1/100)
 
     def Get_Fitness(self):
         self.robot.Get_Fitness()
