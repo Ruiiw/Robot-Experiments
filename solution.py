@@ -43,8 +43,8 @@ class SOLUTION:
         
         # create first link
         linkS = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
-
-        pyrosim.Send_Cube(name = "Link0", pos = [0, 0, linkS[2]/2], size = linkS)
+        firstC = self.hasSensor[0]
+        pyrosim.Send_Cube(name = "Link0", pos = [0, 0, linkS[2]/2], size = linkS, green=firstC)
         pyrosim.Send_Joint(
             name = "Link0_Link1", 
             parent = "Link0", 
@@ -53,11 +53,11 @@ class SOLUTION:
             position = [linkS[0]/2, 0, linkS[2]/2], 
             jointAxis = "0 1 0")
 
-
         for i in range(1, self.numLinks):
             # create other links
             linkSize = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
-            pyrosim.Send_Cube(name = "Link" + str(i), pos = [linkSize[0]/2, 0, 0], size = linkSize)
+            color = self.hasSensor[i]
+            pyrosim.Send_Cube(name = "Link" + str(i), pos = [linkSize[0]/2, 0, 0], size = linkSize, green = color)
 
             # create joints
             if i != self.numLinks - 1:
