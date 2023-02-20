@@ -38,37 +38,79 @@ class SOLUTION:
         pyrosim.Send_Cube(name="box", pos=[-20, 20, 0.5] , size=[1, 1, 1])
         pyrosim.End()
 
+    
     def Create_Body(self):
-        pyrosim.Start_URDF("body.urdf")
-        
-        # create first link
-        linkS = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
-        firstC = self.hasSensor[0]
-        pyrosim.Send_Cube(name = "Link0", pos = [0, 0, linkS[2]/2], size = linkS, green=firstC)
-        pyrosim.Send_Joint(
-            name = "Link0_Link1", 
-            parent = "Link0", 
-            child = "Link1", 
-            type = "revolute", 
-            position = [linkS[0]/2, 0, linkS[2]/2], 
-            jointAxis = "0 1 0")
+            pyrosim.Start_URDF("body.urdf")
 
-        for i in range(1, self.numLinks):
-            # create other links
-            linkSize = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
-            color = self.hasSensor[i]
-            pyrosim.Send_Cube(name = "Link" + str(i), pos = [linkSize[0]/2, 0, 0], size = linkSize, green = color)
+            # dictionary for tracking every link's absolute position
+            # key: link name; value: [(x min, x max), (y min, y max), (z min, z max)]
+            linkPos = {}
 
-            # create joints
-            if i != self.numLinks - 1:
+            # create first link
+            linkS = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
+            firstC = self.hasSensor[0]
+            pyrosim.Send_Cube(name = "Link0", pos = [0, 0, linkS[2]/2], size = linkS, green=firstC)
+            linkPos["Link0"] = [(-linkS[0]/2, linkS[0]/2), (-linkS[1]/2, linkS[1]/2), (-linkS[2]/2, linkS[2]/2)]
+            print(linkPos)
+            prevLinkSize = linkS
+
+            # keeps track of previous link's relative center
+            prevLinkCenter = [0, 0, linkS[2]/2]
+
+            pyrosim.Send_Joint(
+                name = "Link0_Link1", 
+                parent = "Link0", 
+                child = "Link1", 
+                type = "revolute", 
+                position = [linkS[0]/2, 0, linkS[2]/2], 
+                jointAxis = "0 1 0")
+
+            for i in range(1, self.numLinks):
+                # randomly choose a face to add a joint to previous link and append a link
+                faceDim = random.choice(["x", "y", "z"])
+                faceDir = random.choice([-1, 1])
+                linkSize = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
+
+                if faceDim == "x": 
+                    if faceDir == -1:
+                        jointPos = [prevLinkCenter[0] - prevLinkSize[0]/2, prevLinkCenter[1], prevLinkCenter[2]]
+                        linkCenter = [-linkSize[0]/2, 0, 0]
+                    else:
+                        jointPos = [prevLinkCenter[0] + prevLinkSize[0]/2, linkCenter[1], prevLinkCenter[2]]
+                        linkCenter = [linkSize[0]/2, 0, 0]
+                elif faceDim == "y":
+                    if faceDir == -1:
+                        jointPos = [prevLinkCenter[0], prevLinkCenter[1] - prevLinkSize[1]/2, prevLinkCenter[2]]
+                        linkCenter = [0, -linkSize[1]/2, 0]
+                    else:
+                        jointPos = [prevLinkCenter[0], prevLinkCenter[1] + prevLinkSize[1]/2, prevLinkCenter[2]]
+                        linkCenter = [0, linkSize[1]/2, 0]
+                else:
+                    if faceDir == -1:
+                        jointPos = [prevLinkCenter[0], prevLinkCenter[1], prevLinkCenter[2]- prevLinkSize[2]/2]
+                        linkCenter = [0, 0, -linkSize[2]/2]
+                    else:
+                        jointPos = [prevLinkCenter[0], prevLinkCenter[1], prevLinkCenter[2]+ prevLinkSize[2]/2]
+                        linkCenter = [0, 0, linkSize[2]/2]
+
+                # joint can move in any direction
+                jointAx = random.choice(["1 0 0", "0 1 0", "0 0 1"])
+
                 pyrosim.Send_Joint(
-                    name = "Link" + str(i) + "_Link" + str(i+1),
-                    parent = "Link" + str(i),
-                    child = "Link" + str(i+1),
+                    name = "Link" + str(i-1) + "_Link" + str(i),
+                    parent = "Link" + str(i-1),
+                    child = "Link" + str(i),
                     type = "revolute",
-                    position = [linkSize[0], 0, 0],
-                    jointAxis = "0 1 0")
-        pyrosim.End()
+                    position = jointPos,
+                    jointAxis = jointAx)
+                
+                color = self.hasSensor[i]
+
+                pyrosim.Send_Cube(name = "Link" + str(i), pos = linkCenter, size = linkSize, green = color)
+
+                prevLinkSize = linkSize
+                    
+            pyrosim.End()
 
     def Create_Brain(self):
         pyrosim.Start_NeuralNetwork("brain" + str(self.myID) + ".nndf")
