@@ -53,6 +53,9 @@ class SOLUTION:
         linkPos = {}
         linkPos[0] = [-linkS[0]/2, linkS[0]/2, -linkS[1]/2, linkS[1]/2, 0, linkS[2]]
 
+        # every link's absolute center
+        absCenters = [[0, 0, linkS[2]/2]]
+
         # keeps track of all links' relative centers and positions
         LinkCenters = [[0, 0, linkS[2]/2]]
         LinkSizes = [linkS]
@@ -71,29 +74,64 @@ class SOLUTION:
             linkH = random.uniform(0.2, 1)
 
             # New link's absolute position
+            xMin = absCenters[randomLinkIdx][0] - linkW/2
+            xMax = absCenters[randomLinkIdx][0] + linkW/2
+            yMin = absCenters[randomLinkIdx][1] - linkL/2
+            yMax = absCenters[randomLinkIdx][1] + linkL/2
+            zMin = absCenters[randomLinkIdx][2] - linkL/2
+            zMax = absCenters[randomLinkIdx][2] + linkL/2
+            if faceDim == "x": 
+                if faceDir == -1:
+                    xMin = absCenters[randomLinkIdx][0]-LinkSizes[randomLinkIdx][0]/2-linkW
+                    xMax = absCenters[randomLinkIdx][0]-LinkSizes[randomLinkIdx][0]/2
+                else:
+                    xMin = absCenters[randomLinkIdx][0]+LinkSizes[randomLinkIdx][0]/2
+                    xMax = absCenters[randomLinkIdx][0]+LinkSizes[randomLinkIdx][0]/2+linkW
+            elif faceDim == "y":
+                if faceDir == -1:
+                    yMin = absCenters[randomLinkIdx][1]-LinkSizes[randomLinkIdx][1]/2-linkL
+                    yMax = absCenters[randomLinkIdx][1]-LinkSizes[randomLinkIdx][1]/2
+                else:
+                    yMin = absCenters[randomLinkIdx][1]+LinkSizes[randomLinkIdx][1]/2
+                    yMax = absCenters[randomLinkIdx][1]+LinkSizes[randomLinkIdx][1]/2+linkL
+            else:
+                if faceDir == -1:
+                    zMin = absCenters[randomLinkIdx][2]-LinkSizes[randomLinkIdx][2]/2-linkH
+                    zMax = absCenters[randomLinkIdx][2]-LinkSizes[randomLinkIdx][2]/2
+                else:
+                    zMin = absCenters[randomLinkIdx][2]+LinkSizes[randomLinkIdx][2]/2
+                    zMax = absCenters[randomLinkIdx][2]+LinkSizes[randomLinkIdx][2]/2+linkH
             
-            # if faceDim == "x": 
-            #     if faceDir == -1:
-            #         linkP = [LinkCenters[randomLinkIdx]-LinkSizes[randomLinkIdx]/2-linkW, LinkCenters[randomLinkIdx]-LinkSizes[randomLinkIdx]/2]
-            #     else:
-                    
-            # elif faceDim == "y":
-            #     if faceDir == -1:
-            #         jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1] - LinkSizes[randomLinkIdx][1]/2, LinkCenters[randomLinkIdx][2]]
-            #         linkCenter = [0, -linkSize[1]/2, 0]
-            #     else:
-            #         jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1] + LinkSizes[randomLinkIdx][1]/2, LinkCenters[randomLinkIdx][2]]
-            #         linkCenter = [0, linkSize[1]/2, 0]
-            # else:
-            #     if faceDir == -1:
-            #         jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]- LinkSizes[randomLinkIdx][2]/2]
-            #         linkCenter = [0, 0, -linkSize[2]/2]
-            #     else:
-            #         jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]+ LinkSizes[randomLinkIdx][2]/2]
-            #         linkCenter = [0, 0, linkSize[2]/2]
 
             # make sure the new link doesn't intersect with others
+            # for link in linkPos:
+            #     if xMin < linkPos[link][1]:
+            #         dif = linkPos[link][1]-xMin
+            #         xMin = linkPos[link][1]
+            #         linkW -= dif
+            #     elif xMax > linkPos[link][0]:
+            #         dif = xMax-linkPos[link][0]
+            #         xMax = linkPos[link][0]
+            #         linkW -= dif
+            #     elif yMin < linkPos[link][3]:
+            #         dif = linkPos[link][3]-yMin
+            #         yMin = linkPos[link][3]
+            #         linkL -= dif
+            #     elif yMax > linkPos[link][2]:
+            #         dif = yMax-linkPos[link][2]
+            #         yMax = linkPos[link][2]
+            #         linkL -= dif
+            #     elif zMin < linkPos[link][5]:
+            #         dif = linkPos[link][5]-zMin
+            #         zMin = linkPos[link][5]
+            #         linkH -= dif
+            #     elif zMax > linkPos[link][4]:
+            #         dif = zMax-linkPos[link][4]
+            #         zMax = linkPos[link][4]
+            #         linkL -= dif
 
+            linkAbsPos = [xMin, xMax, yMin, yMax, zMin, zMax]
+            linkAbsCenter = [xMin+linkW/2, xMax-linkW/2, yMin+linkL/2, yMax-linkL/2, zMin+linkH/2, zMax-linkH/2]
             linkSize = [linkW, linkL, linkH]
 
             if faceDim == "x": 
@@ -134,8 +172,13 @@ class SOLUTION:
 
             # append the new link
             pyrosim.Send_Cube(name = "Link" + str(i), pos = linkCenter, size = linkSize, green = color)
-
+            # absolute centers
+            absCenters.append(linkAbsCenter)
+            # relative centers
             LinkCenters.append(linkCenter)
+            # link xyz absolute position
+            linkPos[i] = linkAbsPos
+            # link size
             LinkSizes.append(linkSize)
                 
         pyrosim.End()
