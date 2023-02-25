@@ -5,7 +5,6 @@ import pybullet_data
 import time
 from robot import ROBOT
 from sensor import SENSOR
-import constants as c
 
 class SIMULATION:
 
@@ -27,7 +26,7 @@ class SIMULATION:
         p.disconnect()
 
     def run(self):
-        for i in range(c.numTimeSteps):
+        for i in range(1000):
             p.stepSimulation()
             self.robot.Sense(i)
             self.robot.Think()

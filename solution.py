@@ -63,22 +63,21 @@ class SOLUTION:
         absCenters = [[0, 0, linkS[2]/2]]
 
         # keeps track of all links' relative centers and sizes
-        linkCenters = [[0, 0, linkS[2]/2]]
-        linkSizes = [linkS]
+        LinkCenters = [[0, 0, linkS[2]/2]]
+        LinkSizes = [linkS]
 
         for i in range(1, self.numLinks):
             print(i)
             # randomly choose a generated link and a face on it to add a joint
             
             while True:
-                randomLinkIdx = random.randint(0, len(linkCenters)-1)
+                randomLinkIdx = random.randint(0, len(LinkCenters)-1)
                 print(availFace[randomLinkIdx])
                 face = random.choice(availFace[randomLinkIdx])
                 if face != None:
                     break
 
             print("random",randomLinkIdx)
-            print("face", face)
 
             # width, length, height of the newly generated link
             linkW = random.uniform(0.2, 1)
@@ -93,23 +92,23 @@ class SOLUTION:
             zMin = absCenters[randomLinkIdx][2] - linkL/2
             zMax = absCenters[randomLinkIdx][2] + linkL/2
             if face == 1:
-                xMin = absCenters[randomLinkIdx][0]-linkSizes[randomLinkIdx][0]/2-linkW
-                xMax = absCenters[randomLinkIdx][0]-linkSizes[randomLinkIdx][0]/2
+                xMin = absCenters[randomLinkIdx][0]-LinkSizes[randomLinkIdx][0]/2-linkW
+                xMax = absCenters[randomLinkIdx][0]-LinkSizes[randomLinkIdx][0]/2
             elif face == 2:
-                xMin = absCenters[randomLinkIdx][0]+linkSizes[randomLinkIdx][0]/2
-                xMax = absCenters[randomLinkIdx][0]+linkSizes[randomLinkIdx][0]/2+linkW
+                xMin = absCenters[randomLinkIdx][0]+LinkSizes[randomLinkIdx][0]/2
+                xMax = absCenters[randomLinkIdx][0]+LinkSizes[randomLinkIdx][0]/2+linkW
             elif face == 3:
-                yMin = absCenters[randomLinkIdx][1]-linkSizes[randomLinkIdx][1]/2-linkL
-                yMax = absCenters[randomLinkIdx][1]-linkSizes[randomLinkIdx][1]/2
+                yMin = absCenters[randomLinkIdx][1]-LinkSizes[randomLinkIdx][1]/2-linkL
+                yMax = absCenters[randomLinkIdx][1]-LinkSizes[randomLinkIdx][1]/2
             elif face == 4:
-                yMin = absCenters[randomLinkIdx][1]+linkSizes[randomLinkIdx][1]/2
-                yMax = absCenters[randomLinkIdx][1]+linkSizes[randomLinkIdx][1]/2+linkL
+                yMin = absCenters[randomLinkIdx][1]+LinkSizes[randomLinkIdx][1]/2
+                yMax = absCenters[randomLinkIdx][1]+LinkSizes[randomLinkIdx][1]/2+linkL
             elif face == 5:
-                zMin = absCenters[randomLinkIdx][2]-linkSizes[randomLinkIdx][2]/2-linkH
-                zMax = absCenters[randomLinkIdx][2]-linkSizes[randomLinkIdx][2]/2
+                zMin = absCenters[randomLinkIdx][2]-LinkSizes[randomLinkIdx][2]/2-linkH
+                zMax = absCenters[randomLinkIdx][2]-LinkSizes[randomLinkIdx][2]/2
             else:
-                zMin = absCenters[randomLinkIdx][2]+linkSizes[randomLinkIdx][2]/2
-                zMax = absCenters[randomLinkIdx][2]+linkSizes[randomLinkIdx][2]/2+linkH
+                zMin = absCenters[randomLinkIdx][2]+LinkSizes[randomLinkIdx][2]/2
+                zMax = absCenters[randomLinkIdx][2]+LinkSizes[randomLinkIdx][2]/2+linkH
             
             availFace[randomLinkIdx].remove(face)
             
@@ -120,7 +119,7 @@ class SOLUTION:
                 newFaces.remove(face+1)
             
 
-            # # make sure the new link doesn't intersect with others
+            # make sure the new link doesn't intersect with others
             # for link in linkPos:
             #     # [x min, x max, y min, y max, z min, z max]
             #     if zMax > linkPos[link][4] or zMin < linkPos[link][5]:
@@ -179,22 +178,22 @@ class SOLUTION:
 
             # actually append the new link
             if face == 1:
-                jointPos = [absCenters[0][0] - linkSizes[0][0]/2, absCenters[0][1], absCenters[0][2]] if i == 1 else [-linkSizes[randomLinkIdx][0], 0, 0]
+                jointPos = [LinkCenters[randomLinkIdx][0] - LinkSizes[randomLinkIdx][0]/2, LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]]
                 linkCenter = [-linkSize[0]/2, 0, 0]
             elif face == 2:
-                jointPos = [absCenters[0][0] + linkSizes[0][0]/2, absCenters[0][1], absCenters[0][2]] if i == 1 else [linkSizes[randomLinkIdx][0], 0, 0]
+                jointPos = [LinkCenters[randomLinkIdx][0] + LinkSizes[randomLinkIdx][0]/2, LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]]
                 linkCenter = [linkSize[0]/2, 0, 0]
             elif face == 3:
-                jointPos = [absCenters[0][0], absCenters[0][1] - linkSizes[0][1]/2, absCenters[0][2]] if i == 1 else [0, -linkSizes[randomLinkIdx][1], 0]
+                jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1] - LinkSizes[randomLinkIdx][1]/2, LinkCenters[randomLinkIdx][2]]
                 linkCenter = [0, -linkSize[1]/2, 0]
             elif face == 4:
-                jointPos = [absCenters[0][0], absCenters[0][1] + linkSizes[0][1]/2, absCenters[0][2]] if i == 1 else [0, linkSizes[randomLinkIdx][1], 0]
+                jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1] + LinkSizes[randomLinkIdx][1]/2, LinkCenters[randomLinkIdx][2]]
                 linkCenter = [0, linkSize[1]/2, 0]
             elif face == 5:
-                jointPos = [0, 0, -linkSizes[randomLinkIdx][2]]
+                jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]- LinkSizes[randomLinkIdx][2]/2]
                 linkCenter = [0, 0, -linkSize[2]/2]
             else:
-                jointPos = [absCenters[0][0], absCenters[0][1], absCenters[0][2] + linkSizes[0][2]/2] if i == 1 else [0, 0, linkSizes[randomLinkIdx][2]]
+                jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]+ LinkSizes[randomLinkIdx][2]/2]
                 linkCenter = [0, 0, linkSize[2]/2]
 
             print(jointPos)
@@ -216,13 +215,11 @@ class SOLUTION:
             # absolute centers
             absCenters.append(linkAbsCenter)
             # relative centers
-            linkCenters.append(linkCenter)
+            LinkCenters.append(linkCenter)
             # link xyz absolute position
             linkPos[i] = linkAbsPos
             # link size
-            linkSizes.append(linkSize)
-
-            print(availFace)
+            LinkSizes.append(linkSize)
                 
         pyrosim.End()
 

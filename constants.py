@@ -10,7 +10,7 @@ frontLeg_phaseOffset = 0
 
 numberOfGenerations = 1
 
-numTimeSteps = 2000
+numTimeSteps = 1000
 
 populationSize = 1
 
