@@ -9,7 +9,8 @@ class SOLUTION:
 
     def __init__(self, nextAvailableID):
         self.myID = nextAvailableID
-        self.numLinks = random.randint(3, 8)
+        self.numLinks = random.randint(3, 7)
+        
         print("link num", self.numLinks)
         self.numJoints = self.numLinks -1
 
@@ -18,6 +19,11 @@ class SOLUTION:
         for i in range(self.numLinks):
             if random.random() > 0.5:
                 self.hasSensor[i] = True
+
+        # keeps track of links' self.children
+        # key: parent; value: self.children
+        self.children = {}
+
 
     def Start_Simulation(self, directOrGUI):
         self.Create_World()
@@ -45,6 +51,7 @@ class SOLUTION:
 
         # create first link
         linkS = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
+        print("initial link size", linkS)
         firstC = self.hasSensor[0]
         pyrosim.Send_Cube(name = "Link0", pos = [0, 0, linkS[2]/2], size = linkS, green=firstC)
 
@@ -62,10 +69,16 @@ class SOLUTION:
         # every link's absolute center
         absCenters = [[0, 0, linkS[2]/2]]
 
+        # joint's absolute position
+        absJoints = []
+
         # keeps track of all links' relative centers and sizes
         LinkCenters = [[0, 0, linkS[2]/2]]
         LinkSizes = [linkS]
 
+        self.children = {}
+
+        
         for i in range(1, self.numLinks):
             print(i)
             # randomly choose a generated link and a face on it to add a joint
@@ -78,6 +91,11 @@ class SOLUTION:
                     break
 
             print("random",randomLinkIdx)
+
+            if randomLinkIdx in self.children:
+                self.children[randomLinkIdx].append(i)
+            else:
+                self.children[randomLinkIdx] = [i]
 
             # width, length, height of the newly generated link
             linkW = random.uniform(0.2, 1)
@@ -118,6 +136,7 @@ class SOLUTION:
             else:
                 newFaces.remove(face+1)
             
+            print("face", face)
 
             # make sure the new link doesn't intersect with others
             # for link in linkPos:
@@ -175,34 +194,42 @@ class SOLUTION:
             linkAbsPos = [xMin, xMax, yMin, yMax, zMin, zMax]
             linkAbsCenter = [xMin+linkW/2, xMax-linkW/2, yMin+linkL/2, yMax-linkL/2, zMin+linkH/2, zMax-linkH/2]
             linkSize = [linkW, linkL, linkH]
+            print("link size", linkSize)
 
             # actually append the new link
             if face == 1:
                 jointPos = [LinkCenters[randomLinkIdx][0] - LinkSizes[randomLinkIdx][0]/2, LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]]
                 linkCenter = [-linkSize[0]/2, 0, 0]
+                absJoint = [absCenters[randomLinkIdx][0]-LinkSizes[randomLinkIdx][0]/2, absCenters[randomLinkIdx][1], absCenters[randomLinkIdx][2]]
             elif face == 2:
                 jointPos = [LinkCenters[randomLinkIdx][0] + LinkSizes[randomLinkIdx][0]/2, LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]]
                 linkCenter = [linkSize[0]/2, 0, 0]
+                absJoint = [absCenters[randomLinkIdx][0]+LinkSizes[randomLinkIdx][0]/2, absCenters[randomLinkIdx][1], absCenters[randomLinkIdx][2]]
             elif face == 3:
                 jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1] - LinkSizes[randomLinkIdx][1]/2, LinkCenters[randomLinkIdx][2]]
                 linkCenter = [0, -linkSize[1]/2, 0]
+                absJoint = [absCenters[randomLinkIdx][0], absCenters[randomLinkIdx][1]-LinkSizes[randomLinkIdx][1]/2, absCenters[randomLinkIdx][2]]
             elif face == 4:
                 jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1] + LinkSizes[randomLinkIdx][1]/2, LinkCenters[randomLinkIdx][2]]
                 linkCenter = [0, linkSize[1]/2, 0]
+                absJoint = [absCenters[randomLinkIdx][0], absCenters[randomLinkIdx][1]+LinkSizes[randomLinkIdx][1]/2, absCenters[randomLinkIdx][2]]
             elif face == 5:
                 jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]- LinkSizes[randomLinkIdx][2]/2]
                 linkCenter = [0, 0, -linkSize[2]/2]
+                absJoint = [absCenters[randomLinkIdx][0], absCenters[randomLinkIdx][1], absCenters[randomLinkIdx][2]-LinkSizes[randomLinkIdx][2]/2]
             else:
                 jointPos = [LinkCenters[randomLinkIdx][0], LinkCenters[randomLinkIdx][1], LinkCenters[randomLinkIdx][2]+ LinkSizes[randomLinkIdx][2]/2]
                 linkCenter = [0, 0, linkSize[2]/2]
+                absJoint = [absCenters[randomLinkIdx][0], absCenters[randomLinkIdx][1], absCenters[randomLinkIdx][2]+LinkSizes[randomLinkIdx][2]/2]
 
-            print(jointPos)
+            print("joint rela pos", jointPos)
+            print("joint abs pos", absJoint)
             # joint can move in any direction
             jointAx = random.choice(["1 0 0", "0 1 0", "0 0 1"])
 
             pyrosim.Send_Joint(
-                name = "Link" + str(i-1) + "_Link" + str(i),
-                parent = "Link" + str(i-1),
+                name = "Link" + str(randomLinkIdx) + "_Link" + str(i),
+                parent = "Link" + str(randomLinkIdx),
                 child = "Link" + str(i),
                 type = "revolute",
                 position = jointPos,
@@ -214,6 +241,7 @@ class SOLUTION:
             pyrosim.Send_Cube(name = "Link" + str(i), pos = linkCenter, size = linkSize, green = color)
             # absolute centers
             absCenters.append(linkAbsCenter)
+            absJoints.append(absJoint)
             # relative centers
             LinkCenters.append(linkCenter)
             # link xyz absolute position
@@ -222,6 +250,7 @@ class SOLUTION:
             LinkSizes.append(linkSize)
                 
         pyrosim.End()
+
 
     def Create_Brain(self):
         pyrosim.Start_NeuralNetwork("brain" + str(self.myID) + ".nndf")
@@ -234,10 +263,12 @@ class SOLUTION:
                 pyrosim.Send_Sensor_Neuron(name = i, linkName = "Link" + str(i))
         
         motorName = self.numSensorNeurons
-        for i in range(self.numJoints):
-            pyrosim.Send_Motor_Neuron(name = motorName, jointName = "Link" + str(i) + "_Link" + str(i+1))
-            motorName += 1
-        
+        print(self.children)
+        for parent in self.children:
+            for child in self.children[parent]:
+                pyrosim.Send_Motor_Neuron(name = motorName, jointName = "Link" + str(parent) + "_Link" + str(child))
+                motorName += 1
+
         self.weights = numpy.random.rand(self.numSensorNeurons, self.numMotorNeurons) * 2 -1
         for currentRow in range(self.numSensorNeurons):
             for currentColumn in range(self.numMotorNeurons):
