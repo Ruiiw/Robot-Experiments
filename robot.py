@@ -17,6 +17,7 @@ class ROBOT:
         self.Prepare_To_Act()
         self.nn = NEURAL_NETWORK("brain" + str(self.solutionID) + ".nndf")
         os.system("rm brain" + str(solutionID) + ".nndf")
+        os.system("rm body" + str(solutionID) + ".urdf")
 
 
     def Prepare_To_Sense(self):

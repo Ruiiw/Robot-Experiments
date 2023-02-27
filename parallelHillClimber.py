@@ -14,6 +14,7 @@ class PARALLEL_HILL_CLIMBER:
         
         os.system("rm brain*.nndf")
         os.system("rm fitness*.txt")
+        os.system("rm brain*.urdf")
 
     def Evolve(self):
         self.Evaluate(self.parents)
