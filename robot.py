@@ -5,6 +5,7 @@ from motor import MOTOR
 from pyrosim.neuralNetwork import NEURAL_NETWORK
 import os
 import constants as c
+import numpy as np
 
 class ROBOT:
 
@@ -16,8 +17,8 @@ class ROBOT:
         self.Prepare_To_Sense()
         self.Prepare_To_Act()
         self.nn = NEURAL_NETWORK("brain" + str(self.solutionID) + ".nndf")
-        os.system("rm brain" + str(solutionID) + ".nndf")
-        os.system("rm body" + str(solutionID) + ".urdf")
+        os.system("rm brain" + str(self.solutionID) + ".nndf")
+        os.system("rm body" + str(self.solutionID) + ".urdf")
 
 
     def Prepare_To_Sense(self):
@@ -47,8 +48,10 @@ class ROBOT:
         basePositionAndOrientation = p.getBasePositionAndOrientation(self.robotId)
         basePosition = basePositionAndOrientation[0]
         xPosition = basePosition[0]
+        yPosition = basePosition[1]
+        dist = np.sqrt(xPosition**2 + yPosition**2)
         f = open("tmp" + str(self.solutionID) + ".txt", "w")
-        f.write(str(xPosition))
+        f.write(str(dist))
         f.close()
         os.system("mv tmp" + str(self.solutionID) + ".txt fitness" + str(self.solutionID) + ".txt")
         

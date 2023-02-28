@@ -8,11 +8,11 @@ frontLeg_amplitude = numpy.pi/4
 frontLeg_frequency = 10
 frontLeg_phaseOffset = 0
 
-numberOfGenerations = 10
+numberOfGenerations = 100
 
-numTimeSteps = 100000
+numTimeSteps = 1000
 
-populationSize = 3
+populationSize = 10
 
 numSensorneurons = 4
 
