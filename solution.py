@@ -62,30 +62,30 @@ class SOLUTION:
         linkH = random.uniform(0.2, 1)
 
         # New link's absolute position
-        # xMin = self.[randomLinkIdx][0] - linkW/2
-        # xMax = self.[randomLinkIdx][0] + linkW/2
-        # yMin = self.[randomLinkIdx][1] - linkL/2
-        # yMax = self.[randomLinkIdx][1] + linkL/2
-        # zMin = self.[randomLinkIdx][2] - linkH/2
-        # zMax = self.[randomLinkIdx][2] + linkH/2
-        # if face == 1:
-        #     xMin = self.[randomLinkIdx][0]-self.LinkSizes[randomLinkIdx][0]/2-linkW
-        #     xMax = self.[randomLinkIdx][0]-self.LinkSizes[randomLinkIdx][0]/2
-        # elif face == 2:
-        #     xMin = self.[randomLinkIdx][0]+self.LinkSizes[randomLinkIdx][0]/2
-        #     xMax = self.[randomLinkIdx][0]+self.LinkSizes[randomLinkIdx][0]/2+linkW
-        # elif face == 3:
-        #     yMin = self.[randomLinkIdx][1]-self.LinkSizes[randomLinkIdx][1]/2-linkL
-        #     yMax = self.[randomLinkIdx][1]-self.LinkSizes[randomLinkIdx][1]/2
-        # elif face == 4:
-        #     yMin = self.[randomLinkIdx][1]+self.LinkSizes[randomLinkIdx][1]/2
-        #     yMax = self.[randomLinkIdx][1]+self.LinkSizes[randomLinkIdx][1]/2+linkL
-        # elif face == 5:
-        #     zMin = self.[randomLinkIdx][2]-self.LinkSizes[randomLinkIdx][2]/2-linkH
-        #     zMax = self.[randomLinkIdx][2]-self.LinkSizes[randomLinkIdx][2]/2
-        # else:
-        #     zMin = self.[randomLinkIdx][2]+self.LinkSizes[randomLinkIdx][2]/2
-        #     zMax = self.[randomLinkIdx][2]+self.LinkSizes[randomLinkIdx][2]/2+linkH
+        xMin = self.absCenters[randomLinkIdx][0] - linkW/2
+        xMax = self.absCenters[randomLinkIdx][0] + linkW/2
+        yMin = self.absCenters[randomLinkIdx][1] - linkL/2
+        yMax = self.absCenters[randomLinkIdx][1] + linkL/2
+        zMin = self.absCenters[randomLinkIdx][2] - linkH/2
+        zMax = self.absCenters[randomLinkIdx][2] + linkH/2
+        if face == 1:
+            xMin = self.absCenters[randomLinkIdx][0]-self.LinkSizes[randomLinkIdx][0]/2-linkW
+            xMax = self.absCenters[randomLinkIdx][0]-self.LinkSizes[randomLinkIdx][0]/2
+        elif face == 2:
+            xMin = self.absCenters[randomLinkIdx][0]+self.LinkSizes[randomLinkIdx][0]/2
+            xMax = self.absCenters[randomLinkIdx][0]+self.LinkSizes[randomLinkIdx][0]/2+linkW
+        elif face == 3:
+            yMin = self.absCenters[randomLinkIdx][1]-self.LinkSizes[randomLinkIdx][1]/2-linkL
+            yMax = self.absCenters[randomLinkIdx][1]-self.LinkSizes[randomLinkIdx][1]/2
+        elif face == 4:
+            yMin = self.absCenters[randomLinkIdx][1]+self.LinkSizes[randomLinkIdx][1]/2
+            yMax = self.absCenters[randomLinkIdx][1]+self.LinkSizes[randomLinkIdx][1]/2+linkL
+        elif face == 5:
+            zMin = self.absCenters[randomLinkIdx][2]-self.LinkSizes[randomLinkIdx][2]/2-linkH
+            zMax = self.absCenters[randomLinkIdx][2]-self.LinkSizes[randomLinkIdx][2]/2
+        else:
+            zMin = self.absCenters[randomLinkIdx][2]+self.LinkSizes[randomLinkIdx][2]/2
+            zMax = self.absCenters[randomLinkIdx][2]+self.LinkSizes[randomLinkIdx][2]/2+linkH
         
         self.availFace[randomLinkIdx].remove(face)
         if len(self.availFace[randomLinkIdx]) == 0:
@@ -101,8 +101,8 @@ class SOLUTION:
 
         self.availFace[linkIdx] = newFaces
 
-        # linkAbsPos = [xMin, xMax, yMin, yMax, zMin, zMax]
-        # linkAbsCenter = [xMin+linkW/2, xMax-linkW/2, yMin+linkL/2, yMax-linkL/2, zMin+linkH/2, zMax-linkH/2]
+        linkAbsPos = [xMin, xMax, yMin, yMax, zMin, zMax]
+        linkAbsCenter = [xMin+linkW/2, xMax-linkW/2, yMin+linkL/2, yMax-linkL/2, zMin+linkH/2, zMax-linkH/2]
         linkSize = [linkW, linkL, linkH]
 
         # actually append the new link
@@ -148,18 +148,49 @@ class SOLUTION:
 
         # relative centers
         self.LinkCenters.append(linkCenter)
+        # absolute centers
+        self.absCenters.append(linkAbsCenter)
         # link xyz absolute position
-        # self.linkPos[i] = linkAbsPos
+        self.linkPos[linkIdx] = linkAbsPos
         # link size
         self.LinkSizes.append(linkSize)
 
+        return (randomLinkIdx, face)
 
-    def adjust_lowest_zPos(self):
-        pass
+    def check_underground_zPos(self, zPos):
+        if zPos < 0:
+            return True
 
     # returns True if link overlaps with another link
-    def check_self_collision(self):
-        pass
+    def check_self_collision(self, newLinkIdx, otherLinkIdx):
+        xMin1 = self.linkPos[newLinkIdx][0]
+        xMax1 = self.linkPos[newLinkIdx][1]
+        yMin1 = self.linkPos[newLinkIdx][2]
+        yMax1 = self.linkPos[newLinkIdx][3]
+        zMin1 = self.linkPos[newLinkIdx][4]
+        zMax1 = self.linkPos[newLinkIdx][5]
+
+        xMin2 = self.linkPos[otherLinkIdx][0]
+        xMax2 = self.linkPos[otherLinkIdx][1]
+        yMin2 = self.linkPos[otherLinkIdx][2]
+        yMax2 = self.linkPos[otherLinkIdx][3]
+        zMin2 = self.linkPos[otherLinkIdx][4]
+        zMax2 = self.linkPos[otherLinkIdx][5]
+
+        xOverlap = (xMin1 <= xMax2) and (xMax1 >= xMin2)
+        yOverlap = (yMin1 <= yMax2) and (yMax1 >= yMin2)
+        zOverlap = (zMin1 <= zMax2) and (zMax1 >= zMin2)
+
+        if xOverlap and yOverlap and zOverlap:
+            return True
+
+
+    def overlapping_links(self, newLinkIdx):
+        for idx in self.linkPos:
+            if self.check_self_collision(newLinkIdx, idx):
+                return True
+            
+        return False
 
     
     def Create_Body(self):
@@ -196,11 +227,15 @@ class SOLUTION:
 
         
         for i in range(1, self.numLinks):
-            # append the new link
-            self.send_a_link(i)
 
-            # absolute centers
-            # self.append(linkAbsCenter)
+            while True:
+                self.send_a_link(i)
+                if self.overlapping_links(i):
+                    
+                else:
+                    break
+
+            
             # absJoints.append(absJoint)
                 
         pyrosim.End()
@@ -334,7 +369,6 @@ class SOLUTION:
         #     self.numJoints -= 1
         #     # UPDATE WEIGHTS
         
-
 
     def Set_ID(self, id):
         self.myID = id
