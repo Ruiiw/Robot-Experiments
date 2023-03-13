@@ -41,12 +41,13 @@ class PARALLEL_HILL_CLIMBER:
             self.children[child].Mutate()
 
     def Select(self):
-        best = -100
+        best = -1000
         for i in self.parents:
             if self.parents[i].fitness < self.children[i].fitness:
                 self.parents[i] = self.children[i]
             best = max(self.parents[i].fitness, best)
         self.best_fitnesses.append(best)
+        print("select")
         print("best fitness", self.best_fitnesses)
 
 
@@ -66,11 +67,12 @@ class PARALLEL_HILL_CLIMBER:
         best.Start_Simulation(' GUI')
 
     def Evaluate(self, solutions):
-        for parent in solutions:
-            solutions[parent].Start_Simulation(" DIRECT")
+        for idx in solutions:
+            solutions[idx].Start_Simulation(" DIRECT")
+            print("evaluate")
 
-        for parent in solutions:
-            solutions[parent].Wait_For_Simulation_To_End()
+        for idx in solutions:
+            solutions[idx].Wait_For_Simulation_To_End()
 
     
 

@@ -22,7 +22,7 @@ class SOLUTION:
 
         # keeps track of links' self.children
         # key: parent; value: self.children
-        self.children = {}
+        self.PCPair = {}
 
 
     def Start_Simulation(self, directOrGUI):
@@ -46,15 +46,10 @@ class SOLUTION:
         pyrosim.End()
 
     
-    def send_a_link(self, linkIdx):
+    def generate_link_info(self, linkIdx):
         # randomly choose a generated link and a face on it to add a joint
         randomLinkIdx = random.choice(list(self.availFace.keys()))
         face = random.choice(self.availFace[randomLinkIdx])
-
-        if randomLinkIdx in self.children:
-            self.children[randomLinkIdx].append(linkIdx)
-        else:
-            self.children[randomLinkIdx] = [linkIdx]
 
         # width, length, height of the newly generated link
         linkW = random.uniform(0.2, 1)
@@ -89,50 +84,56 @@ class SOLUTION:
         
         self.availFace[randomLinkIdx].remove(face)
         if len(self.availFace[randomLinkIdx]) == 0:
-            self.availFace.pop(randomLinkIdx)
+            del self.availFace[randomLinkIdx]
         
-        newFaces = [1, 2, 3, 4, 6]
+        newFaces = [1, 2, 3, 4, 5, 6]
 
-        if face != 6:
-            if face%2 == 0:
-                newFaces.remove(face-1)
-            else:
-                newFaces.remove(face+1)
+        if face%2 == 0:
+            newFaces.remove(face-1)
+        else:
+            newFaces.remove(face+1)
 
         self.availFace[linkIdx] = newFaces
 
         linkAbsPos = [xMin, xMax, yMin, yMax, zMin, zMax]
-        linkAbsCenter = [xMin+linkW/2, xMax-linkW/2, yMin+linkL/2, yMax-linkL/2, zMin+linkH/2, zMax-linkH/2]
+        linkAbsCenter = [xMin+linkW/2, yMin+linkL/2, zMin+linkH/2]
         linkSize = [linkW, linkL, linkH]
 
-        # actually append the new link
+        # update link info
         if face == 1:
             jointPos = [self.LinkCenters[randomLinkIdx][0] - self.LinkSizes[randomLinkIdx][0]/2, self.LinkCenters[randomLinkIdx][1], self.LinkCenters[randomLinkIdx][2]]
             linkCenter = [-linkSize[0]/2, 0, 0]
-            #absJoint = [self.[randomLinkIdx][0]-self.LinkSizes[randomLinkIdx][0]/2, self.[randomLinkIdx][1], self.[randomLinkIdx][2]]
         elif face == 2:
             jointPos = [self.LinkCenters[randomLinkIdx][0] + self.LinkSizes[randomLinkIdx][0]/2, self.LinkCenters[randomLinkIdx][1], self.LinkCenters[randomLinkIdx][2]]
             linkCenter = [linkSize[0]/2, 0, 0]
-            #absJoint = [self.[randomLinkIdx][0]+self.LinkSizes[randomLinkIdx][0]/2, self.[randomLinkIdx][1], self.[randomLinkIdx][2]]
-        elif face == 3:
             jointPos = [self.LinkCenters[randomLinkIdx][0], self.LinkCenters[randomLinkIdx][1] - self.LinkSizes[randomLinkIdx][1]/2, self.LinkCenters[randomLinkIdx][2]]
             linkCenter = [0, -linkSize[1]/2, 0]
-            #absJoint = [self.[randomLinkIdx][0], self.[randomLinkIdx][1]-self.LinkSizes[randomLinkIdx][1]/2, self.[randomLinkIdx][2]]
         elif face == 4:
             jointPos = [self.LinkCenters[randomLinkIdx][0], self.LinkCenters[randomLinkIdx][1] + self.LinkSizes[randomLinkIdx][1]/2, self.LinkCenters[randomLinkIdx][2]]
             linkCenter = [0, linkSize[1]/2, 0]
-            #absJoint = [self.[randomLinkIdx][0], self.[randomLinkIdx][1]+self.LinkSizes[randomLinkIdx][1]/2, self.[randomLinkIdx][2]]
         elif face == 5:
             jointPos = [self.LinkCenters[randomLinkIdx][0], self.LinkCenters[randomLinkIdx][1], self.LinkCenters[randomLinkIdx][2]- self.LinkSizes[randomLinkIdx][2]/2]
             linkCenter = [0, 0, -linkSize[2]/2]
-            #absJoint = [self.[randomLinkIdx][0], self.[randomLinkIdx][1], self.[randomLinkIdx][2]-self.LinkSizes[randomLinkIdx][2]/2]
         else:
             jointPos = [self.LinkCenters[randomLinkIdx][0], self.LinkCenters[randomLinkIdx][1], self.LinkCenters[randomLinkIdx][2]+ self.LinkSizes[randomLinkIdx][2]/2]
             linkCenter = [0, 0, linkSize[2]/2]
-            #absJoint = [self.[randomLinkIdx][0], self.[randomLinkIdx][1], self.[randomLinkIdx][2]+self.LinkSizes[randomLinkIdx][2]/2]
+            
+        # relative centers
+        self.LinkCenters.append(linkCenter)
+        # absolute centers
+        self.absCenters.append(linkAbsCenter)
+        # link xyz absolute position
+        self.linkPos.append(linkAbsPos)
+        # link size
+        self.LinkSizes.append(linkSize)
 
+        return (randomLinkIdx, face, jointPos, zMin)
+
+
+    def send_a_link(self, randomLinkIdx, linkIdx, jointPos):
         # joint can move in any direction
         jointAx = random.choice(["1 0 0", "0 1 0", "0 0 1"])
+        #jointAx = "1 1 1"
 
         pyrosim.Send_Joint(
             name = "Link" + str(randomLinkIdx) + "_Link" + str(linkIdx),
@@ -142,24 +143,17 @@ class SOLUTION:
             position = jointPos,
             jointAxis = jointAx)
         
+        # print("link idx", linkIdx)
+        # print(self.LinkCenters)
+
+        linkCenter = self.LinkCenters[linkIdx]
+
+        linkSize = self.LinkSizes[linkIdx]
+        
         color = self.hasSensor[linkIdx]
 
         pyrosim.Send_Cube(name = "Link" + str(linkIdx), pos = linkCenter, size = linkSize, green = color)
 
-        # relative centers
-        self.LinkCenters.append(linkCenter)
-        # absolute centers
-        self.absCenters.append(linkAbsCenter)
-        # link xyz absolute position
-        self.linkPos[linkIdx] = linkAbsPos
-        # link size
-        self.LinkSizes.append(linkSize)
-
-        return (randomLinkIdx, face)
-
-    def check_underground_zPos(self, zPos):
-        if zPos < 0:
-            return True
 
     # returns True if link overlaps with another link
     def check_self_collision(self, newLinkIdx, otherLinkIdx):
@@ -176,23 +170,32 @@ class SOLUTION:
         yMax2 = self.linkPos[otherLinkIdx][3]
         zMin2 = self.linkPos[otherLinkIdx][4]
         zMax2 = self.linkPos[otherLinkIdx][5]
+        #print("1", xMin1, xMax1, yMin1, yMax1, zMin1, zMax1)
+        #print("2", xMin2, xMax2, yMin2, yMax2, zMin2, zMax2)
 
-        xOverlap = (xMin1 <= xMax2) and (xMax1 >= xMin2)
-        yOverlap = (yMin1 <= yMax2) and (yMax1 >= yMin2)
-        zOverlap = (zMin1 <= zMax2) and (zMax1 >= zMin2)
+        xOverlap = (xMin1 < xMax2) and (xMax1 > xMin2)
+        #print(xOverlap)
+        yOverlap = (yMin1 < yMax2) and (yMax1 > yMin2)
+        #print(yOverlap)
+        zOverlap = (zMin1 < zMax2) and (zMax1 > zMin2)
+        #print(zOverlap)
 
-        if xOverlap and yOverlap and zOverlap:
-            return True
+        #print (xOverlap and yOverlap and zOverlap)
 
+        return xOverlap and yOverlap and zOverlap
+
+
+    # returns false if they don't overlap
 
     def overlapping_links(self, newLinkIdx):
-        for idx in self.linkPos:
+        for idx in range(0, len(self.linkPos)-1):
             if self.check_self_collision(newLinkIdx, idx):
+                #print(newLinkIdx, idx)
                 return True
             
         return False
 
-    
+
     def Create_Body(self):
         pyrosim.Start_URDF("body" + str(self.myID) + ".urdf")
 
@@ -204,8 +207,8 @@ class SOLUTION:
 
         # dictionary for tracking every link's absolute position
         # key: link index; value: [x min, x max, y min, y max, z min, z max]
-        self.linkPos = {}
-        self.linkPos[0] = [-linkS[0]/2, linkS[0]/2, -linkS[1]/2, linkS[1]/2, 0, linkS[2]]
+        self.linkPos = []
+        self.linkPos.append([-linkS[0]/2, linkS[0]/2, -linkS[1]/2, linkS[1]/2, 0, linkS[2]])
 
         # dictionary for each link's available face
         # key: link index; value: available faces
@@ -223,23 +226,36 @@ class SOLUTION:
         self.LinkCenters = [[0, 0, linkS[2]/2]]
         self.LinkSizes = [linkS]
 
-        self.children = {}
-
         
         for i in range(1, self.numLinks):
-
+            print("idx", i)
             while True:
-                self.send_a_link(i)
-                if self.overlapping_links(i):
+                parentLinkIdx, parentFace, jointPos, zMin = self.generate_link_info(i)
+                if self.overlapping_links(i) or zMin < 0:
+                    self.LinkCenters.pop(-1)
+                    self.absCenters.pop(-1)
+                    self.linkPos.pop(-1)
+                    self.LinkSizes.pop(-1)
+                    if parentLinkIdx in self.availFace:
+                        self.availFace[parentLinkIdx].append(parentFace)
+                    else:
+                        self.availFace[parentLinkIdx] = [parentFace]
+                    del self.availFace[i]
+                    #print("fail")
+                    #exit()
                     
                 else:
+                    self.PCPair = {}
+                    # keeps track of nodes' children
+                    if parentLinkIdx in self.PCPair:
+                        self.PCPair[parentLinkIdx].append(i)
+                    else:
+                        self.PCPair[parentLinkIdx] = [i]
+                    self.send_a_link(parentLinkIdx, i, jointPos)
+                    #print("success")
                     break
 
-            
-            # absJoints.append(absJoint)
-                
         pyrosim.End()
-
     
     def Create_Brain(self):
         pyrosim.Start_NeuralNetwork("brain" + str(self.myID) + ".nndf")
@@ -252,10 +268,15 @@ class SOLUTION:
                 pyrosim.Send_Sensor_Neuron(name = i, linkName = "Link" + str(i))
         
         motorName = self.numSensorNeurons
-        for parent in self.children:
-            for child in self.children[parent]:
+        motorNum = 0
+        print("children", self.PCPair)
+        for parent in self.PCPair:
+            for child in self.PCPair[parent]:
                 pyrosim.Send_Motor_Neuron(name = motorName, jointName = "Link" + str(parent) + "_Link" + str(child))
                 motorName += 1
+                motorNum += 1
+
+        print("motor num", motorNum)
 
         self.weights = numpy.random.rand(self.numSensorNeurons, self.numMotorNeurons) * 2 -1
         for currentRow in range(self.numSensorNeurons):
