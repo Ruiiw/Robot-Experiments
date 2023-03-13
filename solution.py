@@ -199,6 +199,7 @@ class SOLUTION:
     def Create_Body(self):
         pyrosim.Start_URDF("body" + str(self.myID) + ".urdf")
 
+        self.PCPair = {}
         # create first link
         linkS = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
         print("initial link size", linkS)
@@ -245,7 +246,6 @@ class SOLUTION:
                     #exit()
                     
                 else:
-                    self.PCPair = {}
                     # keeps track of nodes' children
                     if parentLinkIdx in self.PCPair:
                         self.PCPair[parentLinkIdx].append(i)
