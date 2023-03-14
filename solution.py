@@ -144,9 +144,6 @@ class SOLUTION:
             type = "revolute",
             position = jointPos,
             jointAxis = jointAx)
-        
-        # print("link idx", linkIdx)
-        # print(self.LinkCenters)
 
         linkCenter = self.LinkCenters[linkIdx]
 
@@ -243,8 +240,8 @@ class SOLUTION:
                     else:
                         self.PCPair[parentLinkIdx] = [i]
                     self.send_a_link(parentLinkIdx, i, jointPos)
-                    print("parent link", parentLinkIdx)
-                    print("parent face", parentFace)
+                    # print("parent link", parentLinkIdx)
+                    # print("parent face", parentFace)
                     break
 
         pyrosim.End()
@@ -260,13 +257,11 @@ class SOLUTION:
                 pyrosim.Send_Sensor_Neuron(name = i, linkName = "Link" + str(i))
         
         motorName = self.numSensorNeurons
-        motorNum = 0
-        print("children", self.PCPair)
+
         for parent in self.PCPair:
             for child in self.PCPair[parent]:
                 pyrosim.Send_Motor_Neuron(name = motorName, jointName = "Link" + str(parent) + "_Link" + str(child))
                 motorName += 1
-                motorNum += 1
 
         self.weights = numpy.random.rand(self.numSensorNeurons, self.numMotorNeurons) * 2 -1
         for currentRow in range(self.numSensorNeurons):
