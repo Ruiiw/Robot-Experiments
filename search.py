@@ -7,7 +7,7 @@ phc = PARALLEL_HILL_CLIMBER()
 phc.Evolve()
 phc.Show_Best()
 
-# for i in range(1, 6):
+# for i in range(1, 4):
 #     np.random.seed(i)
 #     phc = PARALLEL_HILL_CLIMBER()
 #     phc.Evolve()

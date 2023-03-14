@@ -106,6 +106,7 @@ class SOLUTION:
         elif face == 2:
             jointPos = [self.LinkCenters[randomLinkIdx][0] + self.LinkSizes[randomLinkIdx][0]/2, self.LinkCenters[randomLinkIdx][1], self.LinkCenters[randomLinkIdx][2]]
             linkCenter = [linkSize[0]/2, 0, 0]
+        elif face == 3:
             jointPos = [self.LinkCenters[randomLinkIdx][0], self.LinkCenters[randomLinkIdx][1] - self.LinkSizes[randomLinkIdx][1]/2, self.LinkCenters[randomLinkIdx][2]]
             linkCenter = [0, -linkSize[1]/2, 0]
         elif face == 4:
@@ -117,6 +118,7 @@ class SOLUTION:
         else:
             jointPos = [self.LinkCenters[randomLinkIdx][0], self.LinkCenters[randomLinkIdx][1], self.LinkCenters[randomLinkIdx][2]+ self.LinkSizes[randomLinkIdx][2]/2]
             linkCenter = [0, 0, linkSize[2]/2]
+
             
         # relative centers
         self.LinkCenters.append(linkCenter)
@@ -170,27 +172,18 @@ class SOLUTION:
         yMax2 = self.linkPos[otherLinkIdx][3]
         zMin2 = self.linkPos[otherLinkIdx][4]
         zMax2 = self.linkPos[otherLinkIdx][5]
-        #print("1", xMin1, xMax1, yMin1, yMax1, zMin1, zMax1)
-        #print("2", xMin2, xMax2, yMin2, yMax2, zMin2, zMax2)
 
         xOverlap = (xMin1 < xMax2) and (xMax1 > xMin2)
-        #print(xOverlap)
         yOverlap = (yMin1 < yMax2) and (yMax1 > yMin2)
-        #print(yOverlap)
         zOverlap = (zMin1 < zMax2) and (zMax1 > zMin2)
-        #print(zOverlap)
-
-        #print (xOverlap and yOverlap and zOverlap)
-
+    
         return xOverlap and yOverlap and zOverlap
 
 
-    # returns false if they don't overlap
-
+    # returns true if links overlap
     def overlapping_links(self, newLinkIdx):
         for idx in range(0, len(self.linkPos)-1):
             if self.check_self_collision(newLinkIdx, idx):
-                #print(newLinkIdx, idx)
                 return True
             
         return False
@@ -242,8 +235,6 @@ class SOLUTION:
                     else:
                         self.availFace[parentLinkIdx] = [parentFace]
                     del self.availFace[i]
-                    #print("fail")
-                    #exit()
                     
                 else:
                     # keeps track of nodes' children
@@ -252,7 +243,8 @@ class SOLUTION:
                     else:
                         self.PCPair[parentLinkIdx] = [i]
                     self.send_a_link(parentLinkIdx, i, jointPos)
-                    #print("success")
+                    print("parent link", parentLinkIdx)
+                    print("parent face", parentFace)
                     break
 
         pyrosim.End()
@@ -275,8 +267,6 @@ class SOLUTION:
                 pyrosim.Send_Motor_Neuron(name = motorName, jointName = "Link" + str(parent) + "_Link" + str(child))
                 motorName += 1
                 motorNum += 1
-
-        print("motor num", motorNum)
 
         self.weights = numpy.random.rand(self.numSensorNeurons, self.numMotorNeurons) * 2 -1
         for currentRow in range(self.numSensorNeurons):
