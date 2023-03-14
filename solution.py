@@ -192,7 +192,7 @@ class SOLUTION:
         self.PCPair = {}
         # create first link
         linkS = [random.uniform(0.2, 1), random.uniform(0.2, 1), random.uniform(0.2, 1)]
-        print("initial link size", linkS)
+        #print("initial link size", linkS)
         firstC = self.hasSensor[0]
         pyrosim.Send_Cube(name = "Link0", pos = [0, 0, linkS[2]/2], size = linkS, green=firstC)
 
@@ -219,7 +219,7 @@ class SOLUTION:
 
         
         for i in range(1, self.numLinks):
-            print("idx", i)
+            #print("idx", i)
             while True:
                 parentLinkIdx, parentFace, jointPos, zMin = self.generate_link_info(i)
                 if self.overlapping_links(i) or zMin < 0:
@@ -378,4 +378,4 @@ class SOLUTION:
 
     def Set_ID(self, id):
         self.myID = id
-        print("id", self.myID)
+        #print("id", self.myID)

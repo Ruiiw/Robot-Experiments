@@ -3,14 +3,22 @@ from parallelHillClimber import PARALLEL_HILL_CLIMBER
 import matplotlib.pyplot as plt
 import numpy as np
 import constants as c
+import pickle
+
 phc = PARALLEL_HILL_CLIMBER()
 phc.Evolve()
-phc.Show_Best()
+#input("Press Enter to Continue")
+#phc.Show_Best()
+best = phc.Show_Best()
 
-# for i in range(1, 4):
+with open ("pickle0", "wb") as f:
+    pickle.dump(best, f)
+
+# for i in range(1, 11):
 #     np.random.seed(i)
 #     phc = PARALLEL_HILL_CLIMBER()
 #     phc.Evolve()
+#     #input("Press Enter to Continue")
 #     phc.Show_Best()
 #     plt.plot([j + 1 for j in range(c.numberOfGenerations)], phc.best_fitnesses, label="Run " + str(i))
 #     print("FINISH RUN")
@@ -21,4 +29,4 @@ phc.Show_Best()
 # plt.ylabel("Fitness")
 # plt.legend()
 
-plt.savefig("fitnessGraph.jpg")
+#plt.savefig("fitnessGraph.jpg")
