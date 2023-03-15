@@ -8,6 +8,7 @@ import constants as c
 class SOLUTION:
 
     def __init__(self, nextAvailableID):
+        self.identical_world = True
         self.myID = nextAvailableID
         self.numLinks = random.randint(3, 7)
         #self.numLinks = 3
@@ -26,7 +27,8 @@ class SOLUTION:
 
 
     def Start_Simulation(self, directOrGUI):
-        self.Create_World()
+        if self.identical_world == False or self.myID == 0:
+            self.Create_World()
         self.Create_Body()
         self.Create_Brain()
         os.system("python3 simulate.py " + directOrGUI + " " + str(self.myID) + " &")
