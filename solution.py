@@ -58,6 +58,25 @@ class SOLUTION:
         linkL = random.uniform(0.2, 1)
         linkH = random.uniform(0.2, 1)
 
+        limbProb = random.randint(0, 9)
+        if limbProb < 3:
+            limbFace = []
+            for x in self.availFace[randomLinkIdx]:
+                limbFace.append(x)
+                if x > 4:
+                    break
+            if len(limbFace) > 1:
+                face = random.choice(limbFace)
+                if face == 1 or face == 2:
+                    linkW = random.uniform(0.8, 1)
+                    linkL = random.uniform(0.2, 0.4)
+                    linkH = random.uniform(0.2, 0.4)
+                else:
+                    linkW = random.uniform(0.2, 0.4)
+                    linkL = random.uniform(0.8, 1)
+                    linkH = random.uniform(0.2, 0.4)
+
+
         # New link's absolute position
         xMin = self.absCenters[randomLinkIdx][0] - linkW/2
         xMax = self.absCenters[randomLinkIdx][0] + linkW/2
