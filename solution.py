@@ -44,7 +44,7 @@ class SOLUTION:
 
     def Create_World(self):
         pyrosim.Start_URDF("box.urdf")
-        pyrosim.Send_Cube(name="box", pos=[-20, 20, 0.5] , size=2)
+        pyrosim.Send_Cube(name="box", pos=[-20, 20, 0.5] , size=[1, 1, 1])
         pyrosim.End()
 
     
@@ -151,9 +151,9 @@ class SOLUTION:
 
         linkSize = self.LinkSizes[linkIdx]
         
-        color = self.hasSensor[linkIdx]
+        #color = self.hasSensor[linkIdx]
 
-        pyrosim.Send_Cube(name = "Link" + str(linkIdx), pos = linkCenter, size = linkSize, green = color)
+        pyrosim.Send_Cube(name = "Link" + str(linkIdx), pos = linkCenter, size = linkSize, green = linkIdx, idx = linkIdx)
 
 
     # returns True if link overlaps with another link
