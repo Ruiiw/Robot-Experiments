@@ -10,8 +10,8 @@ class SOLUTION:
     def __init__(self, nextAvailableID):
         self.identical_world = True
         self.myID = nextAvailableID
-        self.numLinks = random.randint(3, 7)
-        #self.numLinks = 3
+        #self.numLinks = random.randint(3, 7)
+        self.numLinks = 7
         print("link num", self.numLinks)
         self.numJoints = self.numLinks -1
 
@@ -44,7 +44,7 @@ class SOLUTION:
 
     def Create_World(self):
         pyrosim.Start_URDF("box.urdf")
-        pyrosim.Send_Cube(name="box", pos=[-20, 20, 0.5] , size=[1, 1, 1])
+        pyrosim.Send_Cube(name="box", pos=[-20, 20, 0.5] , size=2)
         pyrosim.End()
 
     

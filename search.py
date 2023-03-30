@@ -8,7 +8,7 @@ from pathlib import Path
 
 root = Path(".")
 
-for i in range(1, 11):
+for i in range(1):
     np.random.seed(i)
     phc = PARALLEL_HILL_CLIMBER()
     phc.Evolve()
